@@ -146,10 +146,10 @@ function HomeContent() {
             lineHeight: "1.1",
           }}
         >
-          Learn<span className="text-accent">.</span>
+          Welcome, Janitor<span className="text-accent">.</span>
         </h1>
         <p className="text-center mb-8 text-sm text-muted">
-          Personalized AI-powered courses, built for you.
+          Your CEO has prepared a very special curriculum for you.
         </p>
 
         <form
@@ -163,7 +163,7 @@ function HomeContent() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="What do you want to learn?"
+              placeholder="What do you want to learn? (choose wisely)"
               className="flex-1 px-2 text-sm outline-none bg-transparent text-foreground placeholder:text-faint"
               autoFocus
               disabled={isLoading}
