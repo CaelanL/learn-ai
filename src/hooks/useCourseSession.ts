@@ -396,6 +396,7 @@ export function useCourseSession(
     messages: activeSnapshot.messages,
     isLoading: activeSnapshot.isLoading,
     streamingContent: activeSnapshot.streamingContent,
+    loaded: activeSnapshot.loaded,
     sendMessage,
     handleSelectModule,
   };

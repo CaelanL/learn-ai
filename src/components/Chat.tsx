@@ -10,6 +10,7 @@ interface ChatProps {
   onSendMessage: (content: string) => void;
   isLoading: boolean;
   streamingContent: string;
+  loaded?: boolean;
   placeholder?: string;
   welcome?: { title: string; goal: string | null };
 }
@@ -126,6 +127,7 @@ export default function Chat({
   onSendMessage,
   isLoading,
   streamingContent,
+  loaded = true,
   placeholder = "Type your message...",
   welcome,
 }: ChatProps) {
@@ -172,8 +174,15 @@ export default function Chat({
     <div className="flex flex-col h-full">
       {/* Message area */}
       <div className="flex-1 overflow-y-auto p-6">
+        {/* Loading spinner — messages not yet fetched */}
+        {!loaded && (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-5 h-5 border-2 border-border-subtle border-t-accent rounded-full animate-spin" />
+          </div>
+        )}
+
         {/* Welcome card */}
-        {messages.length === 0 && !isLoading && welcome && (
+        {loaded && messages.length === 0 && !isLoading && welcome && (
           <div className="max-w-[720px] mx-auto w-full flex flex-col items-center justify-center h-full text-center px-4">
             <h2 className="text-xl font-semibold mb-3 tracking-tight text-foreground">
               {welcome.title}

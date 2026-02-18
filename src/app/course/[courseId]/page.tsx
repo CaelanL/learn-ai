@@ -23,6 +23,7 @@ export default function CoursePage() {
     messages,
     isLoading,
     streamingContent,
+    loaded,
     sendMessage,
     handleSelectModule,
   } = useCourseSession(courseId, searchParams, router, addToast);
@@ -82,6 +83,7 @@ export default function CoursePage() {
                   onSendMessage={sendMessage}
                   isLoading={isLoading}
                   streamingContent={streamingContent}
+                  loaded={loaded}
                   placeholder={
                     currentModule.is_course_setup
                       ? "Answer the questions to shape your curriculum..."
