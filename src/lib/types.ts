@@ -18,6 +18,7 @@ export interface Module {
 export interface Course {
   id: string;
   topic: string;
+  title: string | null;
   end_goal: string | null;
   status: "scoping" | "active" | "completed";
 }

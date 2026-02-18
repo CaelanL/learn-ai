@@ -55,7 +55,8 @@ function getAutoSendAction(
 export function useCourseSession(
   courseId: string,
   searchParams: ReadonlyURLSearchParams,
-  router: AppRouterInstance
+  router: AppRouterInstance,
+  onError?: (message: string) => void
 ) {
   // If we arrived from the landing page with a topic, show it immediately
   const initialTopic = searchParams.get("topic");
@@ -132,7 +133,10 @@ export function useCourseSession(
 
         // 409 = module is already processing. Don't reset isLoading —
         // the original request is still in flight.
-        if (response.status === 409) return;
+        if (response.status === 409) {
+          onError?.("This module is still processing. Please wait.");
+          return;
+        }
 
         if (!response.ok) throw new Error("Chat request failed");
 
@@ -158,6 +162,7 @@ export function useCourseSession(
         }
       } catch (error) {
         console.error("Error in chat:", error);
+        onError?.("Something went wrong. Please try again.");
         mutateModule(moduleId, { isLoading: false, streamingContent: "" });
       }
     },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getUser } from "@/lib/supabase/auth";
+import OpenAI from "openai";
 
 // GET /api/courses — List all courses for the logged-in user.
 // Used by the course header dropdown to show available courses.
@@ -15,9 +16,9 @@ export async function GET() {
 
   const { data: courses, error } = await supabase
     .from("courses")
-    .select("id, topic, status, end_goal, created_at")
+    .select("id, topic, title, status, end_goal, created_at, updated_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("updated_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: "Failed to load courses" }, { status: 500 });
@@ -107,6 +108,37 @@ Important:
       { error: "Failed to create setup module" },
       { status: 500 }
     );
+  }
+
+  // 3. Generate an AI title (non-blocking on error)
+  try {
+    const openai = new OpenAI();
+    const response = await openai.responses.create({
+      model: "gpt-4.1-nano",
+      input: [
+        {
+          role: "user",
+          content: `Generate a short, catchy course title for a course about: "${topic}".
+The title should be 2-5 words, title case, no quotes, no punctuation.
+Examples: "React Fundamentals", "How Databases Work", "Python for Data Science"
+Return ONLY the title, nothing else.`,
+        },
+      ],
+    });
+
+    const textItem = response.output.find(
+      (item: { type: string }) => item.type === "message"
+    );
+    if (textItem && textItem.type === "message") {
+      const content = textItem.content[0];
+      if (content.type === "output_text") {
+        const title = content.text.trim();
+        await supabase.from("courses").update({ title }).eq("id", course.id);
+        course.title = title;
+      }
+    }
+  } catch (err) {
+    console.error("Title generation failed (non-fatal):", err);
   }
 
   return NextResponse.json({ course, setupModule });
