@@ -8,9 +8,12 @@ export async function proxy(request: NextRequest) {
 
   // Public routes that don't require auth
   // Landing page is public — auth happens after user enters a topic (the "hook")
+  // API routes are excluded — they handle auth themselves and return proper 401 JSON,
+  // not HTML redirects which break fetch() callers.
   const publicPaths = ["/login", "/"];
   const isPublic =
     request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname.startsWith("/api/") ||
     publicPaths.some(
       (path) => path !== "/" && request.nextUrl.pathname.startsWith(path)
     );

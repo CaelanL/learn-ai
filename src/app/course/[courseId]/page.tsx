@@ -65,12 +65,12 @@ export default function CoursePage() {
         <div className="flex-1 flex flex-col min-h-0">
           {currentModule ? (
             <>
-              <div className="px-6 py-3 shrink-0 border-b border-border-subtle">
+              <div className="px-6 py-4 shrink-0 border-b border-border-subtle bg-panel">
                 <h2 className="font-semibold text-sm text-foreground">
                   {currentModule.title}
                 </h2>
                 {currentModule.goal && (
-                  <p className="text-xs mt-0.5 text-muted">
+                  <p className="text-xs mt-1 text-muted leading-relaxed">
                     {currentModule.goal}
                   </p>
                 )}

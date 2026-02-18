@@ -29,6 +29,13 @@
   --accent-subtle: rgba(94, 106, 210, 0.12);
   --accent-glow:   rgba(94, 106, 210, 0.20);
 
+  /* User message chip */
+  --bg-user-chip:     hsl(230, 40%, 95%);
+  --border-user-chip: hsl(230, 30%, 88%);
+
+  /* Button glow */
+  --accent-button-glow: 0 0 20px rgba(94, 106, 210, 0.2), 0 0 4px rgba(94, 106, 210, 0.15);
+
   /* Status */
   --status-success: #16a34a;
   --status-error:   #dc2626;
@@ -70,6 +77,13 @@
   --accent:        #7b83eb;
   --accent-subtle: rgba(123, 131, 235, 0.14);
   --accent-glow:   rgba(123, 131, 235, 0.25);
+
+  /* User message chip — accent-tinted, not neutral */
+  --bg-user-chip:     hsl(230, 30%, 16%);
+  --border-user-chip: hsl(230, 20%, 22%);
+
+  /* Button glow */
+  --accent-button-glow: 0 0 20px rgba(123, 131, 235, 0.3), 0 0 4px rgba(123, 131, 235, 0.2);
 
   /* Status */
   --status-success: #4ade80;
@@ -116,6 +130,10 @@ body {
   --color-accent-subtle: var(--accent-subtle);
   --color-accent-glow: var(--accent-glow);
 
+  /* User message chip */
+  --color-user-chip:        var(--bg-user-chip);
+  --color-user-chip-border: var(--border-user-chip);
+
   /* Status */
   --color-success: var(--status-success);
   --color-error:   var(--status-error);
@@ -125,6 +143,9 @@ body {
   --color-code-text:  var(--text-code);
   --color-code-muted: var(--text-code-muted);
   --color-code-border: var(--border-code);
+
+  /* Shadows */
+  --shadow-accent-glow: var(--accent-button-glow);
 
   /* Fonts */
   --font-sans: var(--font-geist-sans);

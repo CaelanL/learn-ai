@@ -75,20 +75,22 @@ export default function Sidebar({
               onClick={() => onSelectModule(mod.id)}
               className={`relative w-full text-left px-3 py-2.5 mb-0.5 text-sm rounded-md transition-colors duration-100 ${
                 isActive
-                  ? "bg-active text-foreground"
+                  ? "bg-accent-subtle text-foreground"
                   : "bg-transparent text-muted hover:bg-hover hover:text-foreground"
               }`}
             >
               {/* Active accent bar */}
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-accent" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-full rounded-full bg-accent" />
               )}
 
               <div className="flex items-center gap-2 pl-1">
-                {/* Position / gear icon */}
-                <span className="text-xs font-mono w-4 shrink-0 text-center text-faint">
-                  {mod.is_course_setup ? "\u2699" : mod.position}
-                </span>
+                {/* Position / setup label */}
+                {mod.is_course_setup ? (
+                  <span className="text-xs uppercase tracking-widest text-faint">&#x2699; Setup</span>
+                ) : (
+                  <span className="text-xs font-mono w-4 shrink-0 text-center text-faint">{mod.position}</span>
+                )}
 
                 {/* Title */}
                 <span className="flex-1 leading-snug">{mod.title}</span>

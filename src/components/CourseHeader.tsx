@@ -52,13 +52,13 @@ export default function CourseHeader({
   }, []);
 
   return (
-    <header className="h-12 flex items-center px-4 shrink-0 bg-panel border-b border-border-subtle">
+    <header className="relative z-10 h-12 flex items-center px-4 shrink-0 bg-panel/80 backdrop-blur-md border-b border-border-subtle">
       {/* Logo */}
       <button
         onClick={() => router.push("/")}
         className="text-sm font-bold tracking-tight text-foreground hover:opacity-70 transition-opacity"
       >
-        learn
+        learn<span className="text-accent">.</span>
       </button>
 
       {/* Separator */}

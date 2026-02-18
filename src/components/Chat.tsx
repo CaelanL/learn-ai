@@ -185,8 +185,7 @@ export default function Chat({
             )}
             <button
               onClick={() => onSendMessage("Let's begin.")}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-accent rounded-md transition-opacity hover:opacity-90"
-              style={{ boxShadow: "0 0 16px var(--accent-glow)" }}
+              className="px-6 py-2.5 text-sm font-medium text-white bg-accent rounded-md shadow-accent-glow transition-opacity hover:opacity-90"
             >
               Begin lesson
             </button>
@@ -194,22 +193,26 @@ export default function Chat({
         )}
 
         {/* Messages */}
-        <div className="max-w-[720px] mx-auto w-full space-y-5">
-          {messages.map((msg, i) => (
-            <div key={i} className="animate-message-in">
-              {msg.role === "user" ? (
-                <div className="flex justify-end">
-                  <div className="max-w-[70%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap bg-overlay rounded-lg text-foreground">
-                    {msg.content}
+        <div className="max-w-[720px] mx-auto w-full space-y-6">
+          {messages.map((msg, i) => {
+            const prevRole = i > 0 ? messages[i - 1].role : null;
+            const isNewSender = prevRole !== null && prevRole !== msg.role;
+            return (
+              <div key={i} className={`animate-message-in ${isNewSender ? "pt-2 border-t border-border-subtle" : ""}`}>
+                {msg.role === "user" ? (
+                  <div className="flex justify-end">
+                    <div className="max-w-[70%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap bg-user-chip border border-user-chip-border rounded-2xl rounded-br-sm text-foreground">
+                      {msg.content}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-sm leading-relaxed text-foreground">
-                  <MessageContent content={msg.content} />
-                </div>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <div className="text-sm leading-relaxed text-foreground">
+                    <MessageContent content={msg.content} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {/* Streaming message */}
           {streamingContent && (
@@ -231,9 +234,9 @@ export default function Chat({
       </div>
 
       {/* Input bar */}
-      <div className="px-4 py-3">
+      <div className="px-4 py-3 border-t border-border-subtle bg-panel/80 backdrop-blur-md">
         <form onSubmit={handleSubmit} className="max-w-[720px] mx-auto w-full">
-          <div className="flex items-end gap-2 p-3 bg-panel border border-border rounded-xl transition-[border-color,box-shadow] duration-200 shadow-sm focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-glow">
+          <div className="flex items-end gap-2 p-3 bg-panel border border-border-subtle rounded-xl transition-[border-color,box-shadow] duration-200 shadow-sm focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-glow">
             <textarea
               ref={textareaRef}
               value={input}
