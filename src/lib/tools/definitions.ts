@@ -75,7 +75,7 @@ export const toolDefinitions: OpenAI.Responses.Tool[] = [
         material: {
           type: ["string", "null"],
           description:
-            "Teaching content and instructions for this module. Defines WHAT to teach (subtopics, depth, examples) not HOW (pedagogy is handled by the agent). Null if material will be generated later.",
+            "Brief topic outline for the teaching agent — NOT a lesson plan. Use bolded topic names with keyword/phrase depth cues (10-20 words per subtopic). Do NOT write explanations, pre-written questions, or teaching scripts. The teaching agent handles all pedagogy. Null if material will be generated later.",
         },
         position: {
           type: "number",

@@ -74,7 +74,7 @@ YOUR ASSIGNMENT:
 Module ID: ${moduleId}
 Title: ${module.title}
 Goal: ${module.goal || "Not yet defined"}
-Role: ${isCourseSetup ? "COURSE SETUP — Your job is to scope the topic, ask clarifying questions, and build the curriculum using the add_module tool." : "TEACHING — Your job is to teach this module's content through Socratic conversation."}
+Role: ${isCourseSetup ? "COURSE SETUP — Scope the topic (1-3 short questions), then build the curriculum using add_module. Module material must be brief topic outlines, not lesson plans." : "TEACHING — Teach this module through Socratic conversation. Short messages, lots of questions, let the learner do most of the talking."}
 ${module.material ? `\nMATERIAL:\n${module.material}` : ""}`;
 
   return { developerMessage, courseId, isCourseSetup };
