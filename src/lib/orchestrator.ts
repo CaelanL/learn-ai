@@ -90,20 +90,44 @@ async function loadConversationHistory(
 ): Promise<OpenAI.Responses.ResponseInputItem[]> {
   const { data: messages } = await supabase
     .from("messages")
-    .select("role, content, is_summary")
+    .select("role, content, type, metadata, is_summary")
     .eq("module_id", moduleId)
     .order("created_at");
 
   if (!messages || messages.length === 0) return [];
 
   // Convert to OpenAI input format.
-  // Summary messages get a prefix so the model knows it's compressed context.
-  return messages.map((msg) => ({
-    role: msg.role as "user" | "assistant",
-    content: msg.is_summary
-      ? `[Summary of earlier conversation]: ${msg.content}`
-      : msg.content,
-  }));
+  // Each row type maps to a different OpenAI input item format.
+  const items: OpenAI.Responses.ResponseInputItem[] = [];
+
+  for (const msg of messages) {
+    if (msg.type === "tool_call" && msg.metadata?.call_id && msg.metadata?.name && msg.metadata?.arguments) {
+      // Replay as a function_call item so the model remembers it called this tool
+      items.push({
+        type: "function_call",
+        call_id: msg.metadata.call_id,
+        name: msg.metadata.name,
+        arguments: msg.metadata.arguments,
+      } as OpenAI.Responses.ResponseInputItem);
+    } else if (msg.type === "tool_result" && msg.metadata?.call_id) {
+      // Replay as a function_call_output so the model sees the result
+      items.push({
+        type: "function_call_output",
+        call_id: msg.metadata.call_id,
+        output: msg.content || "",
+      } as OpenAI.Responses.ResponseInputItem);
+    } else if (msg.type === "text") {
+      // Regular text message (user or assistant)
+      items.push({
+        role: msg.role as "user" | "assistant",
+        content: msg.is_summary
+          ? `[Summary of earlier conversation]: ${msg.content}`
+          : msg.content,
+      });
+    }
+  }
+
+  return items;
 }
 
 // -------------------------------------------------------------------
@@ -119,9 +143,57 @@ async function saveMessage(
   await supabase.from("messages").insert({
     module_id: moduleId,
     role,
+    type: "text",
     content,
     is_summary: false,
   });
+}
+
+// Persist tool calls and their results as message rows.
+// This lets future turns replay the full tool-calling history.
+async function saveToolCalls(
+  supabase: SupabaseClient,
+  moduleId: string,
+  toolCalls: { call_id: string; name: string; arguments: string }[],
+  toolResults: { call_id: string; output: string }[]
+) {
+  const rows: {
+    module_id: string;
+    role: string;
+    type: string;
+    content: string | null;
+    metadata: Record<string, string>;
+    is_summary: boolean;
+  }[] = [];
+
+  // One row per tool call (what the model asked for)
+  for (const tc of toolCalls) {
+    rows.push({
+      module_id: moduleId,
+      role: "assistant",
+      type: "tool_call",
+      content: null,
+      metadata: { call_id: tc.call_id, name: tc.name, arguments: tc.arguments },
+      is_summary: false,
+    });
+  }
+
+  // One row per tool result (what we returned)
+  for (const tr of toolResults) {
+    const callName = toolCalls.find((tc) => tc.call_id === tr.call_id)?.name || "unknown";
+    rows.push({
+      module_id: moduleId,
+      role: "tool",
+      type: "tool_result",
+      content: tr.output,
+      metadata: { call_id: tr.call_id, name: callName },
+      is_summary: false,
+    });
+  }
+
+  if (rows.length > 0) {
+    await supabase.from("messages").insert(rows);
+  }
 }
 
 // -------------------------------------------------------------------
@@ -242,6 +314,10 @@ export async function runOrchestrator(
         };
       })
     );
+
+    // Persist tool calls + results to DB so future turns can replay them
+    await saveToolCalls(supabase, moduleId, toolCalls, toolResults)
+      .catch((e) => console.error("[orchestrator] Failed to save tool calls:", e));
 
     // Append the model's tool calls + our tool results to the input for the next round.
     // IMPORTANT: Filter out reasoning items — their IDs reference server-side storage

@@ -33,6 +33,7 @@ export async function GET(
     .from("messages")
     .select("role, content")
     .eq("module_id", id)
+    .eq("type", "text")
     .eq("is_summary", false)
     .neq("content", "[The learner just entered this module for the first time. Introduce the topic and start teaching.]")
     .order("created_at");

@@ -44,11 +44,17 @@ create table modules (
 );
 
 -- Messages table
+-- Stores text messages, tool calls, and tool results in a single timeline.
+-- type: 'text' (user/assistant messages), 'tool_call' (model invoked a tool),
+--       'tool_result' (our code returned a result)
+-- metadata: JSONB for structured tool data (call_id, name, arguments)
 create table messages (
   id uuid primary key default gen_random_uuid(),
   module_id uuid references modules(id) on delete cascade not null,
-  role text not null check (role in ('user', 'assistant')),
-  content text not null,
+  role text not null check (role in ('user', 'assistant', 'tool')),
+  type text not null default 'text' check (type in ('text', 'tool_call', 'tool_result')),
+  content text,
+  metadata jsonb,
   is_summary boolean default false,
   created_at timestamptz default now()
 );
