@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { toolDefinitions } from "./tools/definitions";
 import { toolHandlers } from "./tools/handlers";
+import { buildSystemPrompt } from "./prompts";
 
 const openai = new OpenAI();
 
@@ -43,11 +44,12 @@ async function assembleBlackboard(
     .order("position");
 
   // Build the module overview — so the agent knows what exists
+  // Include module IDs so the agent can make cross-module tool calls
   const moduleOverview = (allModules || [])
     .map((m) => {
       const marker = m.id === moduleId ? " ← YOU ARE HERE" : "";
       const summaryLine = m.summary ? `\n    Summary: ${m.summary}` : "";
-      return `  ${m.position}. [${m.status}] ${m.title}${marker}${summaryLine}`;
+      return `  ${m.position}. [${m.status}] ${m.title} (id: ${m.id})${marker}${summaryLine}`;
     })
     .join("\n");
 
@@ -74,7 +76,6 @@ YOUR ASSIGNMENT:
 Module ID: ${moduleId}
 Title: ${module.title}
 Goal: ${module.goal || "Not yet defined"}
-Role: ${isCourseSetup ? "COURSE SETUP — Scope the topic (1-3 short questions), then build the curriculum using add_module. Module material must be brief topic outlines, not lesson plans." : "TEACHING — Teach this module through Socratic conversation. Short messages, lots of questions, let the learner do most of the talking."}
 ${module.material ? `\nMATERIAL:\n${module.material}` : ""}`;
 
   return { developerMessage, courseId, isCourseSetup };
@@ -217,14 +218,8 @@ export async function runOrchestrator(
   const { developerMessage, isCourseSetup } =
     await assembleBlackboard(supabase, moduleId);
 
-  // 2. Load system prompt from config table
-  const { data: configRow } = await supabase
-    .from("config")
-    .select("value")
-    .eq("key", "system_prompt")
-    .single();
-
-  const systemPrompt = configRow?.value || "";
+  // 2. Build system prompt from role-specific pieces
+  const systemPrompt = buildSystemPrompt(isCourseSetup);
 
   // 3. Load conversation history + append the new user message
   const history = await loadConversationHistory(supabase, moduleId);

@@ -9,7 +9,7 @@ export const toolDefinitions: OpenAI.Responses.Tool[] = [
     type: "function",
     name: "update_module_status",
     description:
-      "Update the status of a module. Use this to mark the current module as in_progress when teaching begins, or completed when the learner has demonstrated understanding of the module goal.",
+      "Update the status of a module. Teaching agents: mark in_progress when teaching begins, completed when the learner meets the assessment criteria. Course Setup: mark completed after all curriculum modules have been created.",
     parameters: {
       type: "object",
       properties: {
@@ -55,7 +55,7 @@ export const toolDefinitions: OpenAI.Responses.Tool[] = [
     type: "function",
     name: "add_module",
     description:
-      "Add a new module to the course. Used by the course setup agent to build the initial curriculum, or by teaching agents to add modules when they discover gaps or the learner wants to go deeper on a subtopic.",
+      "Add a new module to the course. Primarily used by Course Setup to build the initial curriculum. Teaching agents may use this sparingly if they discover a prerequisite gap or the learner wants to go deeper on a subtopic — but do not build full curricula from a teaching module.",
     parameters: {
       type: "object",
       properties: {
